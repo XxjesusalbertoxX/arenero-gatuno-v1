@@ -1,0 +1,85 @@
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"  # Web UI
+      - "5672:5672"    # AMQP
+      - "1883:1883"    # MQTT
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ../services/rabbitmq-service/enabled_plugins:/etc/rabbitmq/enabled_plugins
+    networks:
+      - iot_network
+  
+  rabbitmq2:
+    image: rabbitmq:management
+    container_name: rabbitmq2
+    ports:
+      - "5673:5672"  # Se mapea el puerto interno 5672 a 5673 en el host, pero entre contenedores se usa 5672
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    volumes:
+      - rabbitmq2_data:/var/lib/rabbitmq
+    networks:
+      - iot_network
+
+  sensor-simulator:
+    build: ../services/sensor-simulator
+    container_name: sensor-simulator
+    depends_on:
+      - rabbitmq
+    networks:
+      - iot_network
+    volumes:
+      - ../services/sensor-simulator:/app
+
+  api-gateway:
+    build: ../services/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8020:3000"
+    depends_on:
+      - rabbitmq
+    networks:
+      - iot_network
+    volumes:
+      - ../services/api-gateway:/application
+
+  database-service:
+    build: ../services/database-service
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: iot_db
+    ports:
+      - "8021:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    depends_on:
+      - rabbitmq
+    networks:
+      - iot_network
+
+  auth-service:
+    build: ../services/auth-service
+    container_name: auth-service
+    volumes:
+      - ../services/auth-service:/application
+    depends_on:
+      - rabbitmq2
+    networks:
+      - iot_network
+
+volumes:
+  rabbitmq_data:
+  db_data:
+  rabbitmq2_data:
+
+networks:
+  iot_network:
+    driver: bridge

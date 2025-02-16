@@ -1,0 +1,28 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@types/axios": "^0.9.36",
+    "@types/express": "^5.0.0",
+    "@types/mqtt": "^0.0.34",
+    "amqplib": "^0.10.5",
+    "axios": "^1.7.9",
+    "express": "^4.21.2",
+    "mqtt": "^5.10.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.6"
+  }
+}
