@@ -11,7 +11,7 @@ services:
       RABBITMQ_DEFAULT_PASS: admin123
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-      - ../services/rabbitmq-service/enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ../services/core/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
     networks:
       - iot_network
   
@@ -29,17 +29,17 @@ services:
       - iot_network
 
   sensor-simulator:
-    build: ../services/sensor-simulator
+    build: ../services/iot/sensor-simulator
     container_name: sensor-simulator
     depends_on:
       - rabbitmq
     networks:
       - iot_network
     volumes:
-      - ../services/sensor-simulator:/app
+      - ../services/iot/sensor-simulator:/app
 
   api-gateway:
-    build: ../services/api-gateway
+    build: ../services/core/api-gateway
     container_name: api-gateway
     ports:
       - "8020:3000"
@@ -48,10 +48,10 @@ services:
     networks:
       - iot_network
     volumes:
-      - ../services/api-gateway:/application
+      - ../services/core/api-gateway:/application
 
   database-service:
-    build: ../services/database-service
+    build: ../services/core/database
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -66,10 +66,10 @@ services:
       - iot_network
 
   auth-service:
-    build: ../services/auth-service
+    build: ../services/core/auth
     container_name: auth-service
     volumes:
-      - ../services/auth-service:/application
+      - ../services/core/auth:/application
     depends_on:
       - rabbitmq2
     networks:
